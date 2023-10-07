@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <style>
+        body{
+            margin: 0;  
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+     #board{
+        background-color: black;
+        border: 1px solid black;
+        width: 300px;
+        height: 300px;
+        display: flex;
+        flex-wrap: wrap;
+     }
+     .square{
+        width: 100px;
+        height: 100px;
+        background-color: aliceblue;
+        border: 1px solid black;
+        box-sizing: border-box;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+     }
+     .circle{
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        border: 10px solid black;
+        box-sizing: border-box;
+     }
+     .cross{
+        width: 80px;
+        height: 80px;
+        position: relative;
+        transform: rotate(45deg);
+     }
+     .cross::before, .cross::after{
+        content: "";
+        position: absolute;
+        background-color: black;
+     }
+     .cross::before{
+        left: 50%;
+        width: 30%;
+        margin-left: -15%;
+        height: 100%;
+     }
+     .cross::after{
+        top: 50%;
+        height: 30%;
+        margin-top: -15%;
+        width: 100%;
+     }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <h1 id="info"></h1>
+<script>
+   const board = document.querySelector('#board');
+   const playerturn = document.querySelector('#info');
+   const cells= [
+    "","","","","","","","",""
+]
+   let player = "circle";
+   let gameOver = false; // Add a variable to track if the game is over
+   playerturn.textContent = "It is Circle's Turn";
+
+  
+   function createboard(){
+    cells.forEach((cell,index) => {
+        const element = document.createElement('div');
+        element.classList.add('square');
+        element.id=index;
+        element.addEventListener('click',turn);
+        board.append(element);
+    });
+   }
+   createboard();
+
+   function turn(e) {
+    if (!gameOver && cells[e.target.id] === "") { // Check if the game is not over and the cell is empty
+        const display = document.createElement('div');
+        display.classList.add(player);
+        e.target.append(display);
+        cells[e.target.id] = player;
+
+        player = player === "circle" ? "cross" : "circle";
+        playerturn.textContent = "It is " + player;
+        
+        // Remove the click event listener for the selected square
+        e.target.removeEventListener("click", turn);
+        result();
+    }
+}
+
+   const winningCombos = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+            [0, 4, 8], [2, 4, 6]            // Diagonals
+        ];
+
+        function checkWinner() {
+            for (const combo of winningCombos) {
+                const [a, b, c] = combo;
+                if (cells[a] && cells[a] === cells[b] && cells[a] === cells[c]) {
+                    return cells[a];
+                }
+            }
+            if (cells.every(cell => cell !== "")) {
+                return "draw";
+            }
+            return null;
+        }
+
+        function result() {
+            const winner = checkWinner();
+            if (winner) {
+                gameOver = true; // Set the game as over
+                if (winner === "draw") {
+                    playerturn.textContent = "It's a Draw!";
+                } else {
+                    playerturn.textContent = winner === "circle" ? "Circle wins!" : "Cross wins!";
+                }
+                // Remove the click event listener from all squares to prevent further clicks
+                const squares = document.querySelectorAll('.square');
+                squares.forEach(square => square.removeEventListener("click", turn));
+            }
+        }
+
+        // Add this line to attach the event listener to the board
+        board.addEventListener("click", turn);
+</script>
+</body>
+</html>
